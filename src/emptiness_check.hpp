@@ -33,15 +33,17 @@ namespace kofola
         /// returns true if the aut given by abstract_successor is empty (should be called after constructor is called)
         bool empty();
 
+        void update_structures(std::shared_ptr<abstract_successor::mstate> src_mstate);
+
         /// implements the edited Gaiser and Schwoon algorithm suggested in the thesis
         /// path_cond can be omitted
         /// TODO too deep of a recursion can cause mem. problems, rewrite to iteration
-        void gs_edited(const std::shared_ptr<abstract_successor::mstate> &src_mstate, spot::acc_cond::mark_t path_cond);
+        bool gs_edited(std::shared_ptr<abstract_successor::mstate> src_mstate);
 
         /// implements Gaiser and Schwoon algorithm, with the possibility of subsumptions usage
         /// path_cond can be omitted
         /// TODO too deep of a recursion can cause mem. problems, rewrite to iteration
-        void gs(const std::shared_ptr<abstract_successor::mstate> &src_mstate, spot::acc_cond::mark_t path_cond);
+        bool gs(std::shared_ptr<abstract_successor::mstate> src_mstate);
 
         /// decides whether there is a state p on the searchpath such that src_mstate is simul. (early or +1) less than p,
         /// without seeing acc. trans. if yes => true

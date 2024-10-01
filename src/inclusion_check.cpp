@@ -64,6 +64,12 @@ namespace kofola {
         first_col_to_use_ = static_cast<unsigned int>(aut_B_compl_.set_acc_cond());
         acc_cond_ = aut_B_compl_.get_final_acc_code();
         acc_cond_ &= spot::acc_cond::acc_code::inf({first_col_to_use_});
+
+        // block of code for future use to manipulate with acc sets
+        // auto cnfed = this->acc_cond_.to_cnf();
+        // auto cnjcts = cnfed.top_conjuncts();
+        // auto x = cnjcts[0].used_inf_fin_sets();
+        // std::cout << std::to_string(x) << "\n";
     }
 
     spot::twa_graph_ptr inclusion_check::aut_union(const spot::twa_graph_ptr &aut_A, const spot::twa_graph_ptr &aut_B) {
@@ -102,7 +108,7 @@ namespace kofola {
         res->new_edge(new_st, init_a, bdd_true());
         res->new_edge(new_st, init_b, bdd_true());
         res->set_init_state(new_st);
-
+        
         return res;
     }
 
@@ -324,7 +330,7 @@ namespace kofola {
         unsigned state_of_A = casted_src->state_.first;
         unsigned compl_state = casted_src->state_.second;
 
-        auto tmp_bdds = symbols_from_A(aut_A_);
+        auto tmp_bdds = symbols_from_A(aut_A_); // TODO should not be computed every time
         bdd msupport = tmp_bdds.second;
         bdd n_s_compat = tmp_bdds.first;
         bdd all = n_s_compat;
@@ -379,6 +385,7 @@ namespace kofola {
         std::vector<std::shared_ptr<inclusion_mstate>> cartesian_prod;
         // COMPUTATION OF COLORS IS TAKEN FROM complement_sync.cpp
 
+        // TODO the following two lines should not be called everytime this function is called !!!!
         auto vec_acc_cond = aut_B_compl_.get_vec_acc_cond();
         auto part_col_offset = aut_B_compl_.get_part_col_offset();
 
@@ -389,7 +396,7 @@ namespace kofola {
                 std::set<unsigned> new_cols;
 
                 if (is_transition_acc(aut_A_, aut_A_src, state_A, letter)) {
-                    new_cols.insert(first_col_to_use_); // TODO what colour here????
+                    new_cols.insert(first_col_to_use_); // accepting mark of A
                 }
 
                 for (const std::pair<unsigned, unsigned> &part_col_pair: cols) {
@@ -412,7 +419,7 @@ namespace kofola {
 
 
                 auto uberstate = aut_B_compl_.num_to_uberstate(state_B);
-                auto B_reach_set = uberstate.get_reach_set();
+                auto B_reach_set = uberstate.get_reach_set(); // (H,(C,S,B),...) -- B_reach_set is H
                 std::set<unsigned> A_B_intersect;
                 if(dir_simul_.count(state_A)) {
                     set_intersection(dir_simul_[state_A].begin(), dir_simul_[state_A].end(), B_reach_set.begin(), B_reach_set.end(),
