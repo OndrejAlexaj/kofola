@@ -298,23 +298,25 @@ namespace kofola {
 
     cola::tnba_complement::vec_state_taggedcol inclusion_check::get_successors_compl(unsigned compl_state, bdd letter) {
         cola::tnba_complement::vec_state_taggedcol succs_B;
-
+        
         // no succs yet
         if(compl_state_storage_.count(compl_state) == 0){
             compl_state_storage_.insert({compl_state,{}});
         }
+
         // find if there are defined
         for(auto &successors: compl_state_storage_[compl_state]) {
             bdd symb = successors.second;
-            if(symb == letter) {
+            if(bdd_implies(letter, symb)) {
                 succs_B = successors.first;
             }
         }
         // if not computed yet, compute
         if(succs_B.empty()) {
+            // std::cout << std::to_string(compl_state) << " , " << std::to_string(letter) << "\n";
             const cola::tnba_complement::uberstate &us_B = aut_B_compl_.num_to_uberstate(compl_state);
             succs_B = aut_B_compl_.get_succ_uberstates(us_B, letter);
-            compl_state_storage_[compl_state] = {{succs_B, letter}};
+            compl_state_storage_[compl_state].emplace_back(std::pair(succs_B, letter));
         }
 
         return succs_B;
